@@ -2,6 +2,7 @@ extern crate alsa;
 extern crate libc;
 extern crate parking_lot;
 
+use self::alsa::Output;
 use self::parking_lot::Mutex;
 use crate::{
     BackendSpecificError, BufferSize, BuildStreamError, ChannelCount, Data,
@@ -856,6 +857,10 @@ fn set_hw_params_from_format(
             hw_params.set_buffer_time_near(100_000, alsa::ValueOr::Nearest)?;
         }
     }
+
+    let mut output_buffer = Output::buffer_open()?;
+    hw_params.dump(&mut output_buffer)?;
+    eprintln!("cpal: ALSA device hw params: {:?}", output_buffer);
 
     pcm_handle.hw_params(&hw_params)?;
 
